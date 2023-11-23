@@ -95,6 +95,19 @@ private:
     defocus_disk_v = v * defocus_radius;
   }
 
+  ray get_ray(int i, int j) const {
+    // Get a randomly sampled camera ray for the pixel at location i,j.
+
+    auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+    auto pixel_sample = pixel_center + pixel_sample_square();
+
+    auto ray_origin =
+        (defocus_angle <= 0) ? camera_center : defocus_disk_sample();
+    auto ray_direction = pixel_sample - ray_origin;
+
+    return ray(ray_origin, ray_direction);
+  }
+
   point3 defocus_disk_sample() const {
     // Returns a random point in the camera defocus disk.
     auto p = random_in_unit_disk();
@@ -120,19 +133,6 @@ private:
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
-  }
-
-  ray get_ray(int i, int j) const {
-    // Get a randomly sampled camera ray for the pixel at location i,j.
-
-    auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-    auto pixel_sample = pixel_center + pixel_sample_square();
-
-    auto ray_origin =
-        (defocus_angle <= 0) ? camera_center : defocus_disk_sample();
-    auto ray_direction = pixel_sample - ray_origin;
-
-    return ray(ray_origin, ray_direction);
   }
 
   vec3 pixel_sample_square() const {
